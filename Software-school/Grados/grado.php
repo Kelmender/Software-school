@@ -16,12 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (!empty($nombre)) {
         if ($id_grado) {
-
             $stmt = $pdo->prepare("UPDATE grados SET nombre = :nombre WHERE id_grado = :id_grado");
             $stmt->execute(['nombre' => $nombre, 'id_grado' => $id_grado]);
             $success_message = "Grado editado correctamente.";
         } else {
-
             $stmt = $pdo->prepare("INSERT INTO grados (nombre) VALUES (:nombre)");
             $stmt->execute(['nombre' => $nombre]);
             $success_message = "Grado agregado correctamente.";
@@ -31,9 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-
 $grados = $pdo->query("SELECT * FROM grados")->fetchAll(PDO::FETCH_ASSOC);
-
+$total_grados = count($grados);
 
 $grado_para_editar = null;
 if (isset($_GET['editar'])) {
@@ -51,7 +48,6 @@ if (isset($_GET['editar'])) {
     <title>Lista de Grados</title>
     <link rel="stylesheet" href="../Styles/styles_general.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
 </head>
 <body>
     <?php include('../navbar.php'); ?>
@@ -67,13 +63,22 @@ if (isset($_GET['editar'])) {
             <div class="error-message"><?= $error_message; ?></div>
         <?php endif; ?>
 
-        <button class="btn-agregar" id="btn-agregar">Agregar Nuevo Grado</button>
+        <button class="btn-agregar" id="btn-agregar">
+            <i class="fas fa-plus"></i> Agregar Nuevo Grado
+        </button>
+
+        <div class="table-header">
+            <div class="table-title">
+                <h3>Lista de Grados</h3>
+                <span class="record-count"><?= $total_grados ?> registros</span>
+            </div>
+        </div>
 
         <table>
             <thead>
                 <tr>
                     <th>Nombre del Grado</th>
-                    <th>Acciones</th>
+                    <th style="text-align: center;">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,8 +86,14 @@ if (isset($_GET['editar'])) {
                 <tr>
                     <td><?= $grado['nombre']; ?></td>
                     <td>
-                        <a href="grado.php?editar=<?= $grado['id_grado']; ?>" class="btn-editar">Editar</a>
-                        <a href="grado.php?eliminar=<?= $grado['id_grado']; ?>" onclick="return confirm('¿Seguro que deseas eliminar este grado?');" class="eliminar">Eliminar</a>
+                        <div class="action-icons">
+                            <a href="grado.php?editar=<?= $grado['id_grado']; ?>" class="edit" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="grado.php?eliminar=<?= $grado['id_grado']; ?>" onclick="return confirm('¿Seguro que deseas eliminar este grado?');" class="delete" title="Eliminar">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -104,17 +115,20 @@ if (isset($_GET['editar'])) {
                 <?php if ($grado_para_editar): ?>
                     <input type="hidden" name="id_grado" value="<?= $grado_para_editar['id_grado']; ?>">
                 <?php endif; ?>
-                <button type="submit"><?= $grado_para_editar ? 'Editar Grado' : 'Agregar Grado'; ?></button>
+                <button type="submit">
+                    <?php if ($grado_para_editar): ?>
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    <?php else: ?>
+                        <i class="fas fa-plus-circle"></i> Agregar Grado
+                    <?php endif; ?>
+                </button>
             </form>
         </div>
     </div>
 
     <script>
-
         var modal = document.getElementById("modalAgregar");
-
         var btn = document.getElementById("btn-agregar");
-
         var span = document.getElementById("closeModal");
 
         btn.onclick = function() {
