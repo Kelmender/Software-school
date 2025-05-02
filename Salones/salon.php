@@ -50,6 +50,9 @@ $salones = $pdo->query("SELECT s.id_salon, s.nombre, s.id_grado, g.nombre as nom
                         LEFT JOIN grados g ON s.id_grado = g.id_grado 
                         ORDER BY g.nombre, s.nombre")->fetchAll(PDO::FETCH_ASSOC);
 
+// Contar el número total de salones
+$total_salones = count($salones);
+
 // Verificar si es una solicitud de edición
 $salon_para_editar = null;
 if (isset($_GET['editar'])) {
@@ -66,7 +69,9 @@ if (isset($_GET['editar'])) {
     <meta charset="UTF-8">
     <title>Lista de Salones</title>
     <link rel="stylesheet" href="../Styles/styles_general.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">>
+    <link rel="stylesheet" href="../Styles/navbar.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
 </head>
 <body>
     <?php include('../navbar.php'); ?>
@@ -82,14 +87,23 @@ if (isset($_GET['editar'])) {
             <div class="error-message"><?= $error_message; ?></div>
         <?php endif; ?>
 
-        <button class="btn-agregar" id="btn-agregar">Agregar Nuevo Salón</button>
+        <button class="btn-agregar" id="btn-agregar">
+            <i class="fas fa-plus"></i> Agregar Nuevo Salón
+        </button>
+
+        <div class="table-header">
+            <div class="table-title">
+                <h3>Lista de Salones</h3>
+                <span class="record-count"><?= $total_salones ?> registros</span>
+            </div>
+        </div>
 
         <table>
             <thead>
                 <tr>
                     <th>Grado</th>
                     <th>Nombre o número del Salón</th>
-                    <th>Acciones</th>
+                    <th style="text-align: center;">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -98,8 +112,14 @@ if (isset($_GET['editar'])) {
                     <td><?= $salon['nombre_grado']; ?></td>
                     <td><?= $salon['nombre']; ?></td>
                     <td>
-                        <a href="salon.php?editar=<?= $salon['id_salon']; ?>" class="btn-editar">Editar</a>
-                        <a href="salon.php?eliminar=<?= $salon['id_salon']; ?>" onclick="return confirm('¿Seguro que deseas eliminar este salón?');" class="eliminar">Eliminar</a>
+                        <div class="action-icons">
+                            <a href="salon.php?editar=<?= $salon['id_salon']; ?>" class="edit" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="salon.php?eliminar=<?= $salon['id_salon']; ?>" onclick="return confirm('¿Seguro que deseas eliminar este salón?');" class="delete" title="Eliminar">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -134,8 +154,16 @@ if (isset($_GET['editar'])) {
                 <?php endif; ?>
                 
                 <div class="button-group">
-                    <button type="button" class="btn-cancelar" id="btn-cancelar">Cancelar</button>
-                    <button type="submit"><?= $salon_para_editar ? 'Guardar Cambios' : 'Agregar Salón'; ?></button>
+                    <button type="button" class="btn-cancelar" id="btn-cancelar">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit">
+                        <?php if ($salon_para_editar): ?>
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        <?php else: ?>
+                            <i class="fas fa-plus-circle"></i> Agregar Salón
+                        <?php endif; ?>
+                    </button>
                 </div>
             </form>
         </div>

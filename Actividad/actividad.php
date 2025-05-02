@@ -2,7 +2,6 @@
 include('../db.php');
 verificarSesion();  
 
-
 // Eliminar actividad
 if (isset($_GET['eliminar'])) {
     $id = $_GET['eliminar'];
@@ -65,6 +64,9 @@ $actividades = $pdo->query("SELECT a.*, asig.nombre as nombre_asignatura, s.nomb
                            INNER JOIN grados g ON s.id_grado = g.id_grado
                            ORDER BY g.nombre, asig.nombre, a.nombre")->fetchAll(PDO::FETCH_ASSOC);
 
+// Contar actividades
+$total_actividades = count($actividades);
+
 // Si se desea editar
 $actividad_para_editar = null;
 if (isset($_GET['editar'])) {
@@ -88,6 +90,7 @@ if (isset($_GET['editar'])) {
 <div class="container">
     
     <h1>Actividades Registradas</h1>
+    <p><strong>Total de actividades:</strong> <?= $total_actividades ?></p>
 
     <?php if (isset($success_message)): ?>
         <div class="success-message"><?= $success_message; ?></div>
@@ -116,7 +119,7 @@ if (isset($_GET['editar'])) {
                 <td><?= $actividad['nombre_grado']; ?></td>
                 <td><?= $actividad['nombre_asignatura']; ?></td>
                 <td><?= $actividad['nombre']; ?></td>
-                <td class="descripcion-cell"><?= $actividad['descripcion']; ?></td>
+                <td class="descripcion-cell"><?= !empty($actividad['descripcion']) ? $actividad['descripcion'] : '<em>Sin descripción</em>'; ?></td>
                 <td><?= date('d/m/Y', strtotime($actividad['fecha_creacion'])); ?></td>
                 <td>
                     <a href="actividad.php?editar=<?= $actividad['id_actividad']; ?>" class="btn-editar">Editar</a>

@@ -2,7 +2,6 @@
 include('../db.php');
 verificarSesion();  
 
-
 // Eliminar estudiante
 if (isset($_GET['eliminar'])) {
     $id = $_GET['eliminar'];
@@ -33,7 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // Obtener estudiantes
-$estudiantes = $pdo->query("SELECT * FROM estudiantes")->fetchAll(PDO::FETCH_ASSOC);
+$estudiantes = $pdo->query("SELECT * FROM estudiantes ORDER BY nombre")->fetchAll(PDO::FETCH_ASSOC);
+
+// Contar estudiantes
+$total_estudiantes = count($estudiantes);
 
 // Verificar si se quiere editar
 $estudiante_para_editar = null;
@@ -56,6 +58,7 @@ if (isset($_GET['editar'])) {
 
     <div class="container">
         <h1>Estudiantes Registrados</h1>
+        <p><strong>Total de estudiantes:</strong> <?= $total_estudiantes ?></p>
 
         <?php if (isset($success_message)): ?>
             <div class="success-message"><?= $success_message; ?></div>
@@ -100,7 +103,10 @@ if (isset($_GET['editar'])) {
                 <?php if ($estudiante_para_editar): ?>
                     <input type="hidden" name="id_estudiante" value="<?= $estudiante_para_editar['id_estudiante']; ?>">
                 <?php endif; ?>
-                <button type="submit"><?= $estudiante_para_editar ? 'Guardar Cambios' : 'Agregar Estudiante'; ?></button>
+                <div class="button-group">
+                    <button type="button" class="btn-cancelar" id="btn-cancelar">Cancelar</button>
+                    <button type="submit"><?= $estudiante_para_editar ? 'Guardar Cambios' : 'Agregar Estudiante'; ?></button>
+                </div>
             </form>
         </div>
     </div>
@@ -109,11 +115,28 @@ if (isset($_GET['editar'])) {
         const modal = document.getElementById("modalAgregar");
         const btn = document.getElementById("btn-agregar");
         const closeBtn = document.getElementById("closeModal");
+        const btnCancelar = document.getElementById("btn-cancelar");
 
         btn.addEventListener("click", () => modal.style.display = "block");
-        closeBtn.addEventListener("click", () => modal.style.display = "none");
+        closeBtn.addEventListener("click", () => {
+            modal.style.display = "none";
+            if (window.location.href.includes('editar=')) {
+                window.location.href = 'estudiantes.php';
+            }
+        });
+        btnCancelar.addEventListener("click", () => {
+            modal.style.display = "none";
+            if (window.location.href.includes('editar=')) {
+                window.location.href = 'estudiantes.php';
+            }
+        });
         window.onclick = (event) => {
-            if (event.target == modal) modal.style.display = "none";
+            if (event.target == modal) {
+                modal.style.display = "none";
+                if (window.location.href.includes('editar=')) {
+                    window.location.href = 'estudiantes.php';
+                }
+            }
         };
     </script>
 </body>
